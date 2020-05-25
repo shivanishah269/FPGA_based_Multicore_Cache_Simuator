@@ -26,8 +26,8 @@ input clk;
 input [15:0] memory_trace;
 output [15:0] cache_hit,cache_miss;
 
-parameter way = 2;
-parameter block_size_byte = 4;
+parameter way = 1;
+parameter block_size_byte = 64;
 parameter cache_size_byte = 16*1024;
 
 parameter block_offset_index = $rtoi($ln(block_size_byte)/$ln(2));
@@ -39,11 +39,11 @@ wire [31:0] mem_addr;
 wire [31-set_index-block_offset_index:0] tag;
 wire [set_index-1:0] index;
 wire [block_offset_index-1:0] block_offset;
-reg [15:0] prev_mem_trace,temp;
+reg [15:0] prev_mem_trace;
 wire reset;
 
 //find_data variables
-wire found_in_cache,done;
+wire found_in_cache;
 
 //request_block variables
 wire [(block_size_byte*8)-1:0] block;
@@ -51,6 +51,9 @@ wire block_ready;
 
 //update_cache variables
 wire updated;
+
+initial
+    prev_mem_trace = 0;
 
 assign reset = (prev_mem_trace==memory_trace) ? 0 : 1; 
 assign mem_addr = {16'b0,memory_trace};
@@ -63,8 +66,5 @@ request_block #(.way(way),.block_size_byte(block_size_byte),.cache_size_byte(cac
 //update_cache #(.way(way),.block_size_byte(block_size_byte),.cache_size_byte(cache_size_byte)) i3 (clk,block_ready,tag,index,block,updated,cache_miss);
 
 always @ (posedge clk)
-begin
-    temp <= memory_trace;
-    prev_mem_trace <= temp;
-end
+    prev_mem_trace <= memory_trace;
 endmodule

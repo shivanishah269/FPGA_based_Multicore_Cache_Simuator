@@ -29,8 +29,6 @@ parameter cache_size_byte = 64*1024;
 parameter block_offset_index = $rtoi($ln(block_size_byte)/$ln(2));
 parameter set = cache_size_byte/(block_size_byte*way); 
 parameter set_index = $rtoi($ln(set)/$ln(2));
-parameter init_file = "";
-
 
 input clk,control,reset;
 input [31-set_index-block_offset_index:0] tag;
@@ -47,7 +45,6 @@ reg [541:0] cache_in;
 wire [541:0] cache_out;
 
 // temporary variables for cache data
-reg [541:0] temp_cachedata;
 reg [2:0] flag;
 reg done;
 
@@ -76,8 +73,8 @@ begin
     temp_tag = 0;
     temp_data = 0;
 end
-
-always @ (posedge clk)
+ 
+always @ (posedge clk or posedge reset)
 begin 
     if(reset)
     begin
@@ -93,13 +90,12 @@ begin
             ena = 1'b1;
             wea = 1'b0;
             cache_addr = index;
-            
-            if(flag > 3) // flag doesn't go to 5
+            if(flag > 2) 
             begin
-                temp_cachedata = cache_out;
-                if(temp_cachedata[541])
+                
+                if(cache_out[541])
                 begin
-                    if(temp_cachedata[540:512]==tag)
+                    if(cache_out[540:512]==tag)
                     begin
                         found_in_cache = 1'b1;
                         cache_hit = cache_hit + 1'b1;

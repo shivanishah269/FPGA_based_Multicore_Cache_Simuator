@@ -62,8 +62,9 @@ begin
 end
 
 
-always @ (posedge clk)
+always @ (posedge clk or posedge reset)
 begin
+
     ena = 1'b1;
     if(reset)
     begin
@@ -75,12 +76,13 @@ begin
     else
     begin
         if (!found_in_cache)
-        begin   
+        begin 
+          
             if (block_offset_index == 2)
             begin           
                 if (i<=3) 
                 begin
-                    memory_addr = {tag,index,i[1:0]};
+                    memory_addr = {tag,index,i[1:0]}; 
                     i = i + 1;   
                 end
                 
@@ -92,14 +94,14 @@ begin
                         block_ready = 1'b1;
                 end
                 else
-                    block_ready = 0;
-           end 
-           /*  
+                    block_ready = 1'b0;
+           end
+             
            else if(block_offset_index==3)
            begin
                 if (i<=7)
                 begin
-                    memory_addr = {tag,index,i};
+                    memory_addr = {tag,index,i[2:0]};
                     i = i + 1;   
                 end
                 
@@ -107,16 +109,69 @@ begin
                 begin
                     block = {mem_out,block[(block_size_byte*8)-1:8]};
                     flag = flag + 1;
-                end 
-                
-                if(flag==8)
-                begin
-                    block_ready = 1'b1;
-                    flag = flag + 1;
-                end
+                    if(flag==8)                    
+                        block_ready = 1'b1;
+                end                 
                 else 
                     block_ready = 1'b0;
-           end */    
+           end
+           
+           else if(block_offset_index==4)
+           begin
+                if (i<=15)
+                begin
+                    memory_addr = {tag,index,i[3:0]};
+                    i = i + 1;   
+                end
+                
+                if(flag<16 && i>3)
+                begin
+                    block = {mem_out,block[(block_size_byte*8)-1:8]};
+                    flag = flag + 1;
+                    if(flag==16)                    
+                        block_ready = 1'b1;
+                end                 
+                else 
+                    block_ready = 1'b0;
+           end
+           
+           else if(block_offset_index==5)
+           begin
+                if (i<=31)
+                begin
+                    memory_addr = {tag,index,i[4:0]};
+                    i = i + 1;   
+                end
+                
+                if(flag<32 && i>3)
+                begin
+                    block = {mem_out,block[(block_size_byte*8)-1:8]};
+                    flag = flag + 1;
+                    if(flag==32)                    
+                        block_ready = 1'b1;
+                end                 
+                else 
+                    block_ready = 1'b0;
+           end
+           
+           else if(block_offset_index==6)
+           begin
+                if (i<=63)
+                begin
+                    memory_addr = {tag,index,i[5:0]};
+                    i = i + 1;   
+                end
+                
+                if(flag<64 && i>3)
+                begin
+                    block = {mem_out,block[(block_size_byte*8)-1:8]};
+                    flag = flag + 1;
+                    if(flag==64)                    
+                        block_ready = 1'b1;
+                end                 
+                else 
+                    block_ready = 1'b0;
+           end    
         end
      end
     

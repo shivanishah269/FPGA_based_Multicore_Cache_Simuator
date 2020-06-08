@@ -44,6 +44,7 @@ module main(clock);
     
     // memory_trace variables
     wire start;
+    reg prev_1,prev_2,prev_3;
     wire [15:0] memory_trace;
     
     //find_data variables
@@ -67,7 +68,7 @@ module main(clock);
     );
     
     
-    assign reset = (prev_mem_trace!=memory_trace) ? 1 : ((start) ? 1 : 0); 
+    assign reset = (prev_mem_trace!=memory_trace) ? 1 : ((prev_3) ? 1 : 0); 
     assign mem_addr = {16'b0,memory_trace};
     assign block_offset = mem_addr[block_offset_index-1:0];
     assign index = mem_addr[set_index+block_offset_index-1:block_offset_index];
@@ -81,6 +82,9 @@ module main(clock);
     
     always @ (posedge clock)
     begin
+        prev_1 <= start;
+        prev_2 <= prev_1;
+        prev_3 <= prev_2;
         prev_mem_trace <= memory_trace;
         prev_hit <= cache_hit;
         prev_miss <= cache_miss;

@@ -20,30 +20,21 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module request_block(clk3,reset,found_in_cache,tag,index,block_offset,block,block_ready);
-
-    parameter way = 1;
+module request_block(clk,start,trace_ready,block,block_ready,miss_latency);
+    
     parameter block_size_byte = 16;
-    parameter cache_size_byte = 32*1024;
     
-    parameter block_offset_index = $rtoi($ln(block_size_byte)/$ln(2));
-    parameter set = cache_size_byte/(block_size_byte*way); 
-    parameter set_index = $rtoi($ln(set)/$ln(2));
-    
-    input clk3,reset,found_in_cache;
-    input [15-set_index-block_offset_index:0] tag; 
-    input [set_index-1:0] index; 
-    input [block_offset_index-1:0] block_offset;
+    input clk,start,trace_ready;
     output reg [(block_size_byte*8)-1:0] block;
     output reg block_ready;
-    
-    
+    output reg [4:0] miss_latency;
+      
     reg ena;
     reg [15:0] memory_addr;
     wire [7:0] mem_out;
     
     blk_mem_gen_0 memory (
-      .clka(clk3),    // input wire clka
+      .clka(clk),    // input wire clka
       .ena(ena),      // input wire ena
       .addra(memory_addr),  // input wire [15 : 0] addra
       .douta(mem_out)  // output wire [7 : 0] douta
@@ -51,6 +42,7 @@ module request_block(clk3,reset,found_in_cache,tag,index,block_offset,block,bloc
     
     reg [5:0] i;
     reg [4:0] flag;
+    reg state;
     
     initial 
     begin
@@ -58,81 +50,54 @@ module request_block(clk3,reset,found_in_cache,tag,index,block_offset,block,bloc
         block = 0;
         i = 0;
         block_ready = 0;
+        ena = 1'b0;
+        state = 0;
+        miss_latency = 0;
     end
     
     
-    always @ (posedge clk3)
-    begin  
-        ena = 1'b1;
-        if(reset)
-        begin
-            i = 0;
-            block = 0;
-            flag = 0;
-            block_ready = 0;
-        end
-        else
-        begin
-            if (!found_in_cache)
-            begin 
-              
-                if (block_offset_index == 2)
-                begin  
-                    if (i<=3) 
+    always @ (posedge clk)
+    begin
+        case (state)
+            1'b0: begin
+                    i = 0;
+                    block = 0;
+                    flag = 0;
+                    block_ready = 0;
+                    ena = 1'b0;
+                    if(trace_ready)
+                        miss_latency = 0;   
+                    if(start)
                     begin
-                        memory_addr = {tag,index,i[1:0]}; 
-                        i = i + 1;   
-                    end                    
-                    if(flag<4 && i>3) 
+                        state = 1'b1;
+                        miss_latency = miss_latency + 5; // 1 cycle - generates address 3 cycle - generates data from that particular address 1 cycle - cache latency added  
+                    end  
+                  end
+            1'b1: begin
+                    ena = 1'b1;
+                    if(block_ready)
                     begin
-                        block = {mem_out,block[(block_size_byte*8)-1:8]};
-                        flag = flag + 1;
-                        if (flag==4)
-                            block_ready = 1'b1;
-                    end
+                        state = 1'b0;
+                        miss_latency = miss_latency + 1'b1; // 1 cycle added for updating in cache when the block is ready
+                    end 
                     else
-                        block_ready = 1'b0;
-               end
-                 
-               else if(block_offset_index==3)
-               begin
-                    if (i<=7)
-                    begin
-                        memory_addr = {tag,index,i[2:0]};
-                        i = i + 1;   
-                    end
-                    
-                    if(flag<8 && i>3)
-                    begin
-                        block = {mem_out,block[(block_size_byte*8)-1:8]};
-                        flag = flag + 1;
-                        if(flag==8)                    
-                            block_ready = 1'b1;
-                    end                 
-                    else 
-                        block_ready = 1'b0;
-               end
-               
-               else if(block_offset_index==4)
-               begin
-                    if (i<=15)
-                    begin
-                        memory_addr = {tag,index,i[3:0]};
-                        i = i + 1;   
-                    end
-                    
-                    if(flag<16 && i>3)
-                    begin
-                        block = {mem_out,block[(block_size_byte*8)-1:8]};
-                        flag = flag + 1;
-                        if(flag==16)                    
-                            block_ready = 1'b1;
-                    end                 
-                    else 
-                        block_ready = 1'b0;
-               end         
-            end
-        end
+                        if (i<=main.block_size_byte-1) 
+                        begin
+                            memory_addr = {main.tag,main.index,i[main.block_offset_index-1:0]}; 
+                            i = i + 1;   
+                        end                    
+                        if(flag<main.block_size_byte && i>3) 
+                        begin
+                            block = {mem_out,block[((main.block_size_byte)*8)-1:8]};
+                            flag = flag + 1;
+                            if (flag==main.block_size_byte)
+                                block_ready = 1'b1;
+                            miss_latency = miss_latency + 1'b1;
+                        end
+                        else
+                            block_ready = 1'b0;      
+                  end    
+        endcase
     end
     
 endmodule

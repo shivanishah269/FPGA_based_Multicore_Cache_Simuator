@@ -1,7 +1,7 @@
 Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2019.1 (lin64) Build 2552052 Fri May 24 14:47:09 MDT 2019
-| Date             : Sat Jun  6 22:50:15 2020
+| Date             : Mon Jul 13 12:04:46 2020
 | Host             : shivani-Lenovo-ideapad-320-15IKB running 64-bit Ubuntu 18.04.4 LTS
 | Command          : report_power -file main_power_routed.rpt -pb main_power_summary_routed.pb -rpx main_power_routed.rpx
 | Design           : main
@@ -30,14 +30,14 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.153        |
+| Total On-Chip Power (W)  | 0.122        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.048        |
-| Device Static (W)        | 0.105        |
+| Dynamic (W)              | 0.018        |
+| Device Static (W)        | 0.104        |
 | Effective TJA (C/W)      | 11.5         |
-| Max Ambient (C)          | 83.2         |
-| Junction Temperature (C) | 26.8         |
+| Max Ambient (C)          | 83.6         |
+| Junction Temperature (C) | 26.4         |
 | Confidence Level         | Medium       |
 | Setting File             | ---          |
 | Simulation Activity File | ---          |
@@ -52,20 +52,20 @@ Table of Contents
 +--------------------------+-----------+----------+-----------+-----------------+
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
-| Clocks                   |     0.012 |        4 |       --- |             --- |
-| Slice Logic              |     0.002 |     6130 |       --- |             --- |
-|   LUT as Logic           |     0.001 |     1292 |     53200 |            2.43 |
+| Clocks                   |     0.013 |        4 |       --- |             --- |
+| Slice Logic              |    <0.001 |     6160 |       --- |             --- |
+|   LUT as Logic           |    <0.001 |     1320 |     53200 |            2.48 |
+|   Register               |    <0.001 |     2336 |    106400 |            2.20 |
+|   CARRY4                 |    <0.001 |       49 |     13300 |            0.37 |
 |   LUT as Distributed RAM |    <0.001 |      984 |     17400 |            5.66 |
-|   Register               |    <0.001 |     2359 |    106400 |            2.22 |
-|   CARRY4                 |    <0.001 |       55 |     13300 |            0.41 |
-|   LUT as Shift Register  |    <0.001 |      123 |     17400 |            0.71 |
 |   F7/F8 Muxes            |    <0.001 |      777 |     53200 |            1.46 |
-|   Others                 |     0.000 |      281 |       --- |             --- |
-| Signals                  |     0.012 |     3683 |       --- |             --- |
-| Block RAM                |     0.022 |       32 |       140 |           22.86 |
+|   LUT as Shift Register  |    <0.001 |      122 |     17400 |            0.70 |
+|   Others                 |     0.000 |      314 |       --- |             --- |
+| Signals                  |     0.001 |     3677 |       --- |             --- |
+| Block RAM                |     0.003 |       32 |       140 |           22.86 |
 | I/O                      |    <0.001 |        1 |       200 |            0.50 |
-| Static Power             |     0.105 |          |           |                 |
-| Total                    |     0.153 |          |           |                 |
+| Static Power             |     0.104 |          |           |                 |
+| Total                    |     0.122 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
 
 
@@ -75,7 +75,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.054 |       0.046 |      0.008 |
+| Vccint    |       1.000 |     0.026 |       0.018 |      0.008 |
 | Vccaux    |       1.800 |     0.010 |       0.000 |      0.010 |
 | Vcco33    |       3.300 |     0.000 |       0.000 |      0.000 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |
@@ -84,11 +84,11 @@ Table of Contents
 | Vcco135   |       1.350 |     0.000 |       0.000 |      0.000 |
 | Vcco12    |       1.200 |     0.000 |       0.000 |      0.000 |
 | Vccaux_io |       1.800 |     0.000 |       0.000 |      0.000 |
-| Vccbram   |       1.000 |     0.003 |       0.002 |      0.002 |
+| Vccbram   |       1.000 |     0.002 |       0.000 |      0.002 |
 | MGTAVcc   |       1.000 |     0.000 |       0.000 |      0.000 |
 | MGTAVtt   |       1.200 |     0.000 |       0.000 |      0.000 |
 | MGTVccaux |       1.800 |     0.000 |       0.000 |      0.000 |
-| Vccpint   |       1.000 |     0.017 |       0.000 |      0.017 |
+| Vccpint   |       1.000 |     0.016 |       0.000 |      0.016 |
 | Vccpaux   |       1.800 |     0.010 |       0.000 |      0.010 |
 | Vccpll    |       1.800 |     0.003 |       0.000 |      0.003 |
 | Vcco_ddr  |       1.500 |     0.000 |       0.000 |      0.000 |
@@ -138,7 +138,7 @@ Table of Contents
 +--------------------------------------------------------------------------------------------+----------------------------------------------------------------------+-----------------+
 | Clock                                                                                      | Domain                                                               | Constraint (ns) |
 +--------------------------------------------------------------------------------------------+----------------------------------------------------------------------+-----------------+
-| clock                                                                                      | clock                                                                |            10.0 |
+| clk                                                                                        | clk                                                                  |            10.0 |
 | dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/TCK | dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/tck_bs |            33.0 |
 +--------------------------------------------------------------------------------------------+----------------------------------------------------------------------+-----------------+
 
@@ -152,13 +152,13 @@ Table of Contents
 +--------------------------+-----------+
 | Name                     | Power (W) |
 +--------------------------+-----------+
-| main                     |     0.048 |
+| main                     |     0.018 |
 |   dbg_hub                |     0.003 |
 |     inst                 |     0.003 |
 |       BSCANID.u_xsdbm_id |     0.003 |
-|   i1                     |     0.033 |
-|     mem_trace            |     0.032 |
-|       U0                 |     0.032 |
+|   i1                     |     0.003 |
+|     mem_trace            |     0.003 |
+|       U0                 |     0.003 |
 |   i2                     |     0.004 |
 |   i4                     |     0.008 |
 |     inst                 |     0.008 |

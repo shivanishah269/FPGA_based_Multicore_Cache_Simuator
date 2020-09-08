@@ -13,7 +13,7 @@ PS - To send the Input files and receive the Output file
 
 **Block Diagram:**
 
-![image-20200824185554991](https://github.com/shivanishah269/Cache-Simulator/blob/master/Images/CacheArchitecture_Blockdiagram.png)
+![image-20200824185554991](Images/CacheArchitecture_Blockdiagram.png)
 
 
 

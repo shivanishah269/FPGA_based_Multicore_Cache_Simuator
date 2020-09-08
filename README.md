@@ -13,11 +13,11 @@ PS - To send the Input files and receive the Output file
 
 **Block Diagram:**
 
-![image-20200824185554991](/home/shivani/.config/Typora/typora-user-images/image-20200824185554991.png)
+![image-20200824185554991](https://github.com/shivanishah269/Cache-Simulator/blob/master/Images/CacheArchitecture_Blockdiagram.png)
 
 
 
 **Flow Chart:**
 
-![image-20200824184752121](/home/shivani/.config/Typora/typora-user-images/image-20200824184752121.png)
+![image-20200824184752121](Images/CacheArchitecture_FlowChart.png)
 

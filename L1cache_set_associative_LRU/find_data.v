@@ -110,8 +110,8 @@ module find_data_and_update (clk,tag,index,block_offset,find_start,update_start,
         
         case (update_state)
             1'b0: begin
-                    updated = 1'b0;
-                    replace = 1'b0;
+                    //updated = 1'b0;
+                    //replace = 1'b0;
                     if (update_start)
                     begin
                         update_state = 1'b1;
@@ -120,7 +120,11 @@ module find_data_and_update (clk,tag,index,block_offset,find_start,update_start,
                   end
             1'b1: begin
                     if(updated)
+                    begin
                         update_state = 1'b0;
+                        replace = 1'b0;
+                        updated = 1'b0;
+                    end
                     else
                     begin
                         temp_tag = tag;
@@ -142,7 +146,6 @@ module find_data_and_update (clk,tag,index,block_offset,find_start,update_start,
                         end  
                         if(block_replace)
                         begin
-                            //replace = 1'b0;
                             cache[index][replace_way] = {1'b1,temp_tag,temp_data};
                             updated = 1'b1;
                         end   

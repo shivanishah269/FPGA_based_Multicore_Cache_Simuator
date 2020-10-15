@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module lru(clk,index,start,found_in_cache,updated,replace,way_index,replace_index,block_replace);
+module lru(clk,index,start,found_in_cache,updated,replace,way_index,replace_index,block_replace,update_lru);
 
 parameter way = 4;
 parameter block_size_byte = 16;
@@ -35,10 +35,11 @@ input [set_index-1:0] index;
 input [4:0] way_index;
 output reg [4:0] replace_index;
 output reg block_replace;
+output reg update_lru;
 
 parameter way_width = $rtoi($ln(way)/$ln(2)); 
 
-reg state,done,temp_found_in_cache,temp_updated,temp_replace;
+reg state,temp_found_in_cache,temp_updated,temp_replace;
 reg [way_width-1:0]lru_count [0:set-1] [0:way-1];
 
 integer i,j;
@@ -48,7 +49,7 @@ begin
     state = 1'b0;
     block_replace = 0;
     replace_index = 0;
-    done = 0;
+    update_lru = 0;
     for(i=0;i<set;i=i+1)
         for(j=0;j<way;j=j+1)
             lru_count[i][j] = j;
@@ -63,23 +64,25 @@ begin
     
         1'b0: begin
                 i = 0;
+                update_lru = 1'b0;
                 block_replace = 1'b0;                
                 replace_index = 0;
-                if(found_in_cache)
-                    temp_found_in_cache = 1'b1;
-                if(updated)
-                    temp_updated = 1'b1;
-                if(replace)
-                    temp_replace = 1'b1;     
+                    
                 if(start)
                 begin
                     state = 1'b1;
-                    done = 1'b0;
+                    if(found_in_cache)
+                        temp_found_in_cache = 1'b1;
+                    if(updated)
+                        temp_updated = 1'b1;
+                    if(replace)
+                        temp_replace = 1'b1; 
+                    
                 end     
               end
               
         1'b1: begin
-                if(done)
+                if(update_lru)
                 begin
                     state = 1'b0;
                     temp_found_in_cache = 1'b0;
@@ -89,7 +92,7 @@ begin
                 else
                 begin
                     //It is found in cache but need to update LRU table
-                    if(temp_found_in_cache && !done)
+                    if(temp_found_in_cache && !update_lru)
                     begin
                         if(i<way)
                         begin
@@ -101,17 +104,17 @@ begin
                         if(i==way)
                         begin
                             lru_count[index][way_index-1] = way - 1;
-                            done = 1'b1;
+                            update_lru = 1'b1;
                         end                  
                     end
                     
                     // special case of above case
                     // It is not in cache but there was empty block in cache so no need to replace
-                    if(!temp_found_in_cache && temp_updated && !done)
+                    if(!temp_found_in_cache && temp_updated && !update_lru)
                     begin
                         if(i<way)
                         begin
-                            if(i==way_index-1)
+                            if(lru_count[index][i]==0)
                                 lru_count[index][i] = way-1;
                             else
                                 lru_count[index][i] = lru_count[index][i] - 1;
@@ -119,11 +122,11 @@ begin
                             i = i + 1;               
                         end
                         if(i==way)
-                            done = 1'b1;
+                            update_lru = 1'b1;
                     end
                     
                     // It is not in cache and particular index is completely full
-                    if(!temp_updated && temp_replace && !done)
+                    if(!temp_updated && temp_replace && !update_lru)
                     begin
                         if(i<way)
                         begin
@@ -141,7 +144,7 @@ begin
                         end
                         if(i==way)
                         begin
-                            done = 1'b1;
+                            update_lru = 1'b1;
                             block_replace = 1'b1;
                         end            
                     end                     

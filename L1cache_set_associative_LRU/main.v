@@ -26,7 +26,7 @@ module main(clk);
     
     parameter way = 4;
     parameter block_size_byte = 16;
-    parameter cache_size_byte = 32*1024;
+    parameter cache_size_byte = 1*1024;
     
     parameter block_offset_index = $rtoi($ln(block_size_byte)/$ln(2));
     parameter set = cache_size_byte/(block_size_byte*way); 
@@ -53,7 +53,10 @@ module main(clk);
     wire [4:0] miss_latency;
     
     //update_cache variables
-    wire updated;    
+    wire updated;  
+    
+    //update lru
+    wire update_lru;  
     
     
     ila_0 i5 (
@@ -68,10 +71,10 @@ module main(clk);
     assign index = mem_addr[set_index+block_offset_index-1:block_offset_index];
     assign tag = mem_addr[31:set_index+block_offset_index];
     
-    memory_trace i1 (clk,(found_in_cache|updated),memory_trace,trace_ready);  
-    find_data_and_update i2 (clk,tag,index,block_offset,trace_ready,block_ready,block_replace,block,replace_way,way_index,cache_hit_count,cache_miss_count,hit_latency,found_in_cache,updated,done,replace);
-    request_block i3 (clk,tag,index,block_offset,(!found_in_cache&done),trace_ready,block,block_ready,miss_latency);
-    lru i4 (clk,index,found_in_cache|(!found_in_cache&updated&!replace)|(!updated&replace),found_in_cache,updated,replace,way_index,replace_way,block_replace);
+    memory_trace i1 (clk,update_lru,memory_trace,trace_ready);  
+    find_data_and_update #(.way(way),.block_size_byte(block_size_byte),.cache_size_byte(cache_size_byte)) i2 (clk,tag,index,block_offset,trace_ready,block_ready,block_replace,block,replace_way,way_index,cache_hit_count,cache_miss_count,hit_latency,found_in_cache,updated,done,replace);
+    request_block #(.way(way),.block_size_byte(block_size_byte),.cache_size_byte(cache_size_byte)) i3 (clk,tag,index,block_offset,(!found_in_cache&done),trace_ready,block,block_ready,miss_latency);
+    lru #(.way(way),.block_size_byte(block_size_byte),.cache_size_byte(cache_size_byte)) i4 (clk,index,found_in_cache|(!found_in_cache&updated&!replace)|(!updated&replace),found_in_cache,updated,replace,way_index,replace_way,block_replace,update_lru);
     
     
 endmodule
